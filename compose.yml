@@ -1,0 +1,39 @@
+version: '3.8'
+
+name: questionpro-backend
+
+networks:
+  questionpro-network:
+    driver: bridge
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev  # Use Dockerfile.dev instead of Dockerfile for dev
+    networks:
+      - questionpro-network
+    ports:
+      - "4000:4000"
+    depends_on:
+      - mysql
+    env_file:
+      - .env
+    volumes:
+      - ./data/log/:/app/log/
+
+  mysql:
+    image: mysql:latest  # Use MySQL image
+    user: root
+    restart: always
+    ports:
+      - "${DB_PORT:-3306}:3306"  # Default MySQL port
+    networks:
+      - questionpro-network
+    volumes:
+      - ./data/mysql_data:/var/lib/mysql  # Use MySQL volume path
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-password}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER:-root}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-password}

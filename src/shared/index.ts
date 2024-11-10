@@ -7,7 +7,6 @@ export {
   NotAuthorizedError,
   FileTooLargeError,
   ServerError,
-  ErrnoException
 } from './error-handler';
 export { winstonLogger } from './logger';
 export {

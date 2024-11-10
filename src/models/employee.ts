@@ -20,8 +20,7 @@ class Employee extends Model<EmployeeAttributes, EmployeeCreationAttributes> imp
   public positionName!: string;
   public child?: Employee[];
 
-  // Mixin methods for associations
-  public getChildren!: () => Promise<Employee[]>; // Sequelize will automatically add association methods
+  public getChildren!: () => Promise<Employee[]>;
 }
 
 // Initialize the model
@@ -60,7 +59,7 @@ Employee.init(
 Employee.hasMany(Employee, {
   as: 'children',
   foreignKey: 'parentId',
-  onDelete: 'CASCADE', // Optional: to handle cascading deletes in hierarchical data
+  onDelete: 'CASCADE',
 });
 
 export { Employee };

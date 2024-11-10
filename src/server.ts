@@ -13,6 +13,9 @@ import compression from 'compression';
 import { appRoutes } from '@root/routes';
 import { Channel } from 'amqplib';
 // import { createConnection } from '@root/queues/connection';
+import  swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerDefinition from '@root/swagger.json';
 
 const SERVER_PORT = 5000;
 const log: Logger = winstonLogger(`${config.ELASTIC_SEARCH_URL}`, 'Server', 'debug');
@@ -23,6 +26,21 @@ export function start(app: Application): void {
   securityMiddleware(app);
   standardMiddleware(app);
   routesMiddleware(app);
+  // Set up Swagger
+if(process.env.NODE_ENV !== 'production') {
+  const swaggerOptions = {
+    swaggerDefinition,
+    // Paths to files containing OpenAPI definitions
+    apis: ['./routes/*.ts', './routes/v1/*.ts', './routes/api/**/*.ts']
+  };
+  const openapiSpecification = swaggerJsdoc(swaggerOptions);
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpecification, {
+    swaggerOptions: {
+      persistAuthorization: true
+    },
+    explorer: true
+  }));
+}
   // startQueues();
   // startElasticSearch();
   errorHandler(app);
@@ -63,7 +81,7 @@ function routesMiddleware(app: Application): void {
 
 function errorHandler(app: Application): void {
   app.use((error: IErrorResponse, _req: Request, res: Response, next: NextFunction) => {
-    log.log('error', `Service ${error.comingFrom}:`, error);
+    log.log('error', 'from error', error);
     if (error instanceof CustomError) {
       res.status(error.statusCode).json(error.serializeErrors());
     }
